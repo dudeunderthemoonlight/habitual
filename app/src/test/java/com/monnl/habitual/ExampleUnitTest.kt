@@ -1,4 +1,4 @@
-package com.monnl.simpleapp
+package com.monnl.habitual
 
 import org.junit.Test
 
