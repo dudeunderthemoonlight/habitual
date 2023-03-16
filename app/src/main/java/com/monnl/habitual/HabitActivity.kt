@@ -29,18 +29,17 @@ class HabitActivity : ComponentActivity() {
 
     private val habitMutableState: MutableState<Habit?> = mutableStateOf(null)
 
+    private lateinit var editingState: EditingState
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         readExtras()
 
         Log.d(this.javaClass.simpleName, "habit: ${habitMutableState.value}")
 
-        val state =
-            if (habitMutableState.value != null) EditingState.EXISTING_HABIT else EditingState.NEW_HABIT
-
         setContent {
             HabitualTheme {
-                HabitScreen(habit = habitMutableState, state = state)
+                HabitScreen(habit = habitMutableState, state = editingState)
             }
         }
     }
@@ -55,7 +54,12 @@ class HabitActivity : ComponentActivity() {
     }
 
     private fun readExtras() = intent.extras?.run {
-        habitMutableState.value = getParcelable(HABIT_KEY) as Habit? ?: Habit()
+        val habit = getParcelable(HABIT_KEY) as Habit?
+
+        editingState =
+            if (habit != null) EditingState.EXISTING_HABIT else EditingState.NEW_HABIT
+        habitMutableState.value = habit ?: Habit()
+
         intent.removeExtra(HABIT_KEY)
     }
 
@@ -208,6 +212,7 @@ fun PrioritySpinner(
         ) {
 
             TextField(
+                modifier = Modifier.menuAnchor(),
                 readOnly = true,
                 value = selectedOptionText,
                 onValueChange = { },
