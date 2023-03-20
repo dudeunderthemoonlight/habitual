@@ -3,7 +3,6 @@ package com.monnl.habitual
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Animatable
@@ -36,7 +35,7 @@ import java.util.*
 
 class MainActivity : ComponentActivity() {
 
-    var habits = HabitsDataSource.habits
+    private val habits = HabitsDataSource.habits
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -183,8 +182,8 @@ fun HabitsFloatingActionButton(navigateToHabitDetails: (Habit?) -> Unit) {
 
 @Composable
 fun HabitLinearProgressBar(habit: Habit, modifier: Modifier) {
-    val targetProgress = habit.completeTimes.toFloat() / habit.targetTimes.toFloat()
-    Log.d("HabitLinearProgressBar", "targetProgress = $targetProgress")
+
+    val targetProgress = habit.completeTimes?.toFloat()!! / habit.targetTimes?.toFloat()!!
 
     val progress = remember { Animatable(0f) }
 
@@ -225,7 +224,7 @@ fun PreviewHabitCard() {
     )
 }
 
-
+@Preview
 @Composable
 fun PreviewHabitList() {
     HabitsList(

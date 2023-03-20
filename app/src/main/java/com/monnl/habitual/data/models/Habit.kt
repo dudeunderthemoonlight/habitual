@@ -12,8 +12,8 @@ data class Habit(
     var description: String = "",
     var priority: HabitPriority = HabitPriority.Medium,
     var type: HabitType = HabitType.Good,
-    var targetTimes: Int = 0,
-    val completeTimes: Int = 0,
-    var period: Int = 0,
+    var targetTimes: Int? = 0,
+    val completeTimes: Int? = 0,
+    var period: Int? = 0,
     val color: Int = 0
 ) : Parcelable
