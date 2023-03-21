@@ -1,9 +1,11 @@
 package com.monnl.habitual
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -15,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,46 +30,35 @@ import java.util.*
 
 class HabitActivity : ComponentActivity() {
 
-    private val habitMutableState: MutableState<Habit> = mutableStateOf(Habit())
-
-    private lateinit var editingState: EditingState
+    private var currentHabit: Habit? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         if (savedInstanceState == null) readExtras()
+
         setContent {
             HabitualTheme {
-
                 val editingState by rememberSaveable {
-                    mutableStateOf(
-                        if (habitMutableState.value != null) EditingState.EXISTING_HABIT else EditingState.NEW_HABIT
-                    )
+                    mutableStateOf(if (currentHabit != null) EditingState.EXISTING_HABIT else EditingState.NEW_HABIT)
                 }
+                val habit by rememberSaveable { mutableStateOf(currentHabit ?: Habit()) }
 
-                HabitScreen(habit = habitMutableState, state = editingState)
+                HabitScreen(habit = habit, state = editingState)
             }
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putParcelable(HABIT_KEY, habitMutableState.value)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        habitMutableState.value = getParcelableHabit(savedInstanceState) ?: Habit()
-    }
-
     private fun readExtras() = intent.extras?.run {
-        val habit = getParcelableHabit(this)
-        habitMutableState.value = habit ?: Habit()
+        currentHabit = getParcelableHabit(this)
     }
 
+    @Suppress("DEPRECATION")
     private fun getParcelableHabit(bundle: Bundle): Habit? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             bundle.getParcelable(HABIT_KEY, Habit::class.java)
         } else bundle.getParcelable(HABIT_KEY)
-
+    
     companion object {
         const val HABIT_KEY = "habit"
     }
@@ -77,9 +69,15 @@ enum class EditingState {
     EXISTING_HABIT
 }
 
+fun isHabitValid(habit: Habit): Boolean =
+    !(habit.name.isBlank()
+            || habit.description.isBlank()
+            || habit.period == 0
+            || habit.targetTimes == 0)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HabitScreen(habit: MutableState<Habit>, state: EditingState) {
+fun HabitScreen(habit: Habit, state: EditingState) {
     Scaffold(
         topBar = { HabitScreenTopAppBar(state) }
     ) { innerPadding ->
@@ -90,7 +88,7 @@ fun HabitScreen(habit: MutableState<Habit>, state: EditingState) {
 }
 
 @Composable
-fun EditableHabit(habit: MutableState<Habit>) {
+fun EditableHabit(habit: Habit) {
     Card(
         modifier = Modifier
             .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 24.dp)
@@ -105,18 +103,19 @@ fun EditableHabit(habit: MutableState<Habit>) {
         ) {
             NameTextField(
                 habit = habit,
-                modifier = Modifier.width(290.dp)
+                modifier = Modifier.fillMaxWidth()
             )
             HabitDescriptionField(
                 habit = habit,
-                modifier = Modifier.width(290.dp)
+                modifier = Modifier.fillMaxWidth()
             )
             PrioritySpinner(
                 habit = habit,
-                modifier = Modifier.width(290.dp)
+                modifier = Modifier.fillMaxWidth()
             )
             HabitTypeRadioButton(
-                habit = habit
+                habit = habit,
+                modifier = Modifier.fillMaxWidth()
             )
             HabitTargetPeriodicity(habit = habit)
             SaveHabitButton(habit = habit)
@@ -125,12 +124,17 @@ fun EditableHabit(habit: MutableState<Habit>) {
 }
 
 @Composable
-fun SaveHabitButton(habit: MutableState<Habit>) {
+fun SaveHabitButton(habit: Habit) {
+    val activity = LocalContext.current as Activity
     ElevatedButton(
         onClick = {
-            HabitsDataSource.updateHabit(habit.value)
-            Log.d("HabitActivity", "habit: ${habit.value}")
+            if (isHabitValid(habit)) {
+                HabitsDataSource.updateHabit(habit)
+                activity.finish()
+            } else Toast.makeText(activity, "fill whole data, please", Toast.LENGTH_LONG).show()
+            Log.d("HabitActivity", "habit: $habit")
         }
+
     ) {
         Text(text = "Save habit")
     }
@@ -139,16 +143,16 @@ fun SaveHabitButton(habit: MutableState<Habit>) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NameTextField(
-    habit: MutableState<Habit>,
+    habit: Habit,
     modifier: Modifier = Modifier
 ) {
-    var name by rememberSaveable { mutableStateOf(habit.value.name) }
+    var name by remember { mutableStateOf(habit.name) }
 
     OutlinedTextField(
         modifier = modifier,
         value = name,
         onValueChange = {
-            habit.value.name = it
+            habit.name = it
             name = it
         },
         maxLines = 1,
@@ -159,16 +163,16 @@ fun NameTextField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitDescriptionField(
-    habit: MutableState<Habit>,
+    habit: Habit,
     modifier: Modifier = Modifier
 ) {
-    var description by rememberSaveable { mutableStateOf(habit.value.description) }
+    var description by remember { mutableStateOf(habit.description) }
 
     OutlinedTextField(
         modifier = modifier,
         value = description,
         onValueChange = {
-            habit.value.description = it
+            habit.description = it
             description = it
         },
         maxLines = 4,
@@ -179,12 +183,12 @@ fun HabitDescriptionField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrioritySpinner(
-    habit: MutableState<Habit>,
+    habit: Habit,
     modifier: Modifier = Modifier
 ) {
-    var selectedOptionText by rememberSaveable { mutableStateOf(habit.value.priority.toString()) }
-
+    var selectedOptionText by remember { mutableStateOf(habit.priority.toString()) }
     var expanded by remember { mutableStateOf(false) }
+
     val options = HabitPriority.values()
 
     Row(modifier) {
@@ -219,7 +223,7 @@ fun PrioritySpinner(
                         onClick = {
                             selectedOptionText = selectionOption.toString()
                             expanded = false
-                            habit.value.priority = selectionOption
+                            habit.priority = selectionOption
                         },
                         text = { Text(text = selectionOption.toString()) }
                     )
@@ -231,13 +235,13 @@ fun PrioritySpinner(
 
 @Composable
 fun HabitTypeRadioButton(
-    habit: MutableState<Habit>,
+    habit: Habit,
     modifier: Modifier = Modifier
 ) {
-    var habitType by rememberSaveable { mutableStateOf(habit.value.type) }
+    var habitType by remember { mutableStateOf(habit.type) }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(habitType) }
 
     val types = HabitType.values()
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(habitType) }
 
     Row(
         modifier
@@ -253,7 +257,7 @@ fun HabitTypeRadioButton(
                         onClick = {
                             onOptionSelected(type)
                             habitType = type
-                            habit.value.type = type
+                            habit.type = type
                         }
                     ),
                 verticalAlignment = Alignment.CenterVertically
@@ -271,19 +275,19 @@ fun HabitTypeRadioButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitTargetPeriodicity(
-    habit: MutableState<Habit>,
+    habit: Habit,
     modifier: Modifier = Modifier
 ) {
-    var targetTimes by rememberSaveable {
-        mutableStateOf(
-            habit.value.targetTimes?.toString() ?: ""
-        )
-    }
-    var periodicity by rememberSaveable { mutableStateOf(habit.value.period?.toString() ?: "") }
+    var targetTimes by remember { mutableStateOf(habit.targetTimes?.toString() ?: "") }
+    var periodicity by remember { mutableStateOf(habit.period?.toString() ?: "") }
 
     val numberPattern = remember { Regex("^\\d+\$") }
 
-    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
         Text(text = "I'm gonna do it ")
 
         OutlinedTextField(
@@ -292,7 +296,7 @@ fun HabitTargetPeriodicity(
             value = targetTimes,
             onValueChange = {
                 if (it.isEmpty() || it.matches(numberPattern)) {
-                    habit.value.targetTimes = it.toIntOrNull()
+                    habit.targetTimes = it.toIntOrNull()
                     targetTimes = it
                 }
             })
@@ -305,7 +309,7 @@ fun HabitTargetPeriodicity(
             value = periodicity,
             onValueChange = {
                 if (it.isEmpty() || it.matches(numberPattern)) {
-                    habit.value.period = it.toIntOrNull()
+                    habit.period = it.toIntOrNull()
                     periodicity = it
                 }
             })
@@ -342,8 +346,5 @@ fun PreviewHabitScreen() {
         period = 7,
         color = Color.Blue.value.toInt()
     )
-
-    val habitState: MutableState<Habit> = mutableStateOf(habit)
-
-    HabitScreen(habit = habitState, state = EditingState.EXISTING_HABIT)
+    HabitScreen(habit = habit, state = EditingState.EXISTING_HABIT)
 }
