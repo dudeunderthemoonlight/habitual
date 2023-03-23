@@ -1,7 +1,5 @@
 package com.monnl.habitual
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,8 +10,12 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.runtime.*
@@ -26,92 +28,205 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.monnl.habitual.data.HabitsDataSource
-import com.monnl.habitual.data.models.Habit
-import com.monnl.habitual.data.models.HabitPriority
-import com.monnl.habitual.data.models.HabitType
+import com.monnl.habitual.data.models.models.Habit
+import com.monnl.habitual.data.models.models.HabitPriority
+import com.monnl.habitual.data.models.models.HabitType
+import com.monnl.habitual.ui.HabitCategoryTab
+import com.monnl.habitual.ui.habitsScreenCategories
+import com.monnl.habitual.ui.navigation.*
 import com.monnl.habitual.ui.theme.HabitualTheme
+import kotlinx.coroutines.launch
 import java.util.*
 
 class MainActivity : ComponentActivity() {
-
-    private val habits = HabitsDataSource.habits
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            HabitualTheme {
-                HabitualApp(habits = habits) {
-                    navigateToHabitActivity(it)
+        setContent { HabitualApp() }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HabitualApp() {
+    HabitualTheme {
+        val navController = rememberNavController()
+        val currentBackStack by navController.currentBackStackEntryAsState()
+        val currentDestination = currentBackStack?.destination
+        val currentScreen =
+            habitualDestinationScreens.find { it.route == currentDestination?.route }
+                ?: Habits
+
+        val drawerSheetItems = habitualTabDrawerScreens
+        val drawerState = rememberDrawerState(DrawerValue.Closed)
+        val scope = rememberCoroutineScope()
+
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            gesturesEnabled = true,
+            drawerContent = {
+                ModalDrawerSheet {
+
+                    Spacer(Modifier.height(12.dp))
+
+                    drawerSheetItems.forEach { item ->
+                        NavigationDrawerItem(
+                            icon = {
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = item.route
+                                )
+                            },
+                            label = { Text(text = item.name) },
+                            selected = item == currentScreen,
+                            onClick = {
+                                navController.navigateSingleTopTo(item.route)
+                                scope.launch { drawerState.close() }
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                    }
                 }
+            }
+        ) {
+            Scaffold(
+                topBar = {
+                    HabitualTopAppBar(
+                        currentScreen = currentScreen,
+                        onNavIconClick = {
+                            scope.launch { drawerState.open() }
+                        }
+                    )
+                }
+            )
+            { innerPadding ->
+                HabitualNavHost(
+                    navController = navController,
+                    modifier = Modifier.padding(innerPadding)
+                )
             }
         }
     }
-
-    private fun navigateToHabitActivity(habit: Habit?) {
-        startActivity(newHabitIntent(this, habit))
-    }
-
-    private fun newHabitIntent(context: Context, habit: Habit?) =
-        Intent(context, HabitActivity::class.java).apply {
-            putExtra(HabitActivity.HABIT_KEY, habit)
-        }
 }
 
-@Composable
-fun HabitualApp(
-    habits: List<Habit>,
-    navigateToHabitDetails: (Habit?) -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        HabitListScreen(habits, navigateToHabitDetails)
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HabitListScreen(
-    habits: List<Habit>,
-    navigateToHabitDetails: (Habit?) -> Unit
+fun HabitualTopAppBar(
+    currentScreen: HabitualDestination,
+    onNavIconClick: () -> Unit
 ) {
+    TopAppBar(
+        title = { Text(currentScreen.name) },
+        navigationIcon = {
+            IconButton(onClick = { onNavIconClick() }) {
+                Icon(
+                    imageVector = Icons.Filled.Menu,
+                    contentDescription = "Open navigation drawer"
+                )
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun HabitsScreen(
+    habits: List<Habit> = HabitsDataSource.habits,
+    onHabitClick: (String) -> Unit
+) {
+    val pagerState = rememberPagerState()
+    val scope = rememberCoroutineScope()
+
     Scaffold(
-        topBar = { HabitsScreenTopAppBar() },
-        floatingActionButton = { HabitsFloatingActionButton(navigateToHabitDetails) }
+        floatingActionButton = { HabitsFloatingActionButton(onHabitClick) }
     )
     { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            HabitsList(habits = habits, navigateToHabitDetails)
+            Column {
+                HabitsTabRow(
+                    categories = habitsScreenCategories,
+                    selectedCategoryIndex = pagerState.currentPage,
+                    onCategorySelected = { index ->
+                        scope.launch { pagerState.animateScrollToPage(index) }
+                    }
+                )
+                HabitsTypeHorizontalPager(
+                    state = pagerState,
+                    habits = habits,
+                    onHabitClick = onHabitClick
+                )
+            }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HabitsScreenTopAppBar() {
-    TopAppBar(
-        title = {
-            Text(text = "Your habits to achieve")
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-        )
-    )
+fun HabitsTypeHorizontalPager(
+    state: PagerState,
+    habits: List<Habit>,
+    onHabitClick: (String) -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        HorizontalPager(
+            pageCount = habitsScreenCategories.size,
+            state = state
+        ) { index ->
+            val filterPredicate = habitsScreenCategories[index].filterPredicate
+            val habitsToShow = remember { habits.filter { filterPredicate(it) } }
+
+            HabitsList(
+                habits = habitsToShow,
+                onHabitClick = onHabitClick
+            )
+        }
+    }
+}
+
+@Composable
+fun InfoScreen() {
+    Text(text = "This is information screen")
 }
 
 @Composable
 fun HabitsList(
     habits: List<Habit>,
-    navigateToHabitDetails: (Habit?) -> Unit
+    onHabitClick: (String) -> Unit = {}
 ) {
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        modifier = Modifier.fillMaxSize()
     ) {
         items(habits) { habit ->
-            HabitCard(habit = habit, navigateToHabitDetails)
+            HabitCard(
+                habit = habit,
+                onHabitClick = onHabitClick
+            )
+        }
+    }
+}
+
+@Composable
+fun HabitsTabRow(
+    categories: List<HabitCategoryTab>,
+    selectedCategoryIndex: Int,
+    onCategorySelected: (index: Int) -> Unit = { }
+) {
+    TabRow(
+        selectedTabIndex = selectedCategoryIndex
+    ) {
+        categories.forEachIndexed { index, category ->
+            Tab(
+                selected = index == selectedCategoryIndex,
+                onClick = { onCategorySelected(index) }
+            ) {
+                Text(text = category.text)
+            }
         }
     }
 }
@@ -120,7 +235,7 @@ fun HabitsList(
 @Composable
 fun HabitCard(
     habit: Habit,
-    navigateToHabitDetails: (Habit?) -> Unit
+    onHabitClick: (String) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -130,7 +245,7 @@ fun HabitCard(
             .clip(MaterialTheme.shapes.medium)
             .combinedClickable(
                 onClick = { isExpanded = !isExpanded },
-                onLongClick = { navigateToHabitDetails(habit) }
+                onLongClick = { onHabitClick(habit.id) }
             )
     ) {
         Column(
@@ -172,11 +287,13 @@ fun HabitCard(
 }
 
 @Composable
-fun HabitsFloatingActionButton(navigateToHabitDetails: (Habit?) -> Unit) {
+fun HabitsFloatingActionButton(
+    onHabitClick: (String) -> Unit
+) {
     FloatingActionButton(
-        onClick = { navigateToHabitDetails(null) }
+        onClick = { onHabitClick("") }
     ) {
-        Icon(Icons.Filled.Add, "New habit")
+        Icon(Icons.Filled.Add, "Create new habit")
     }
 }
 
@@ -205,24 +322,6 @@ fun HabitLinearProgressBar(habit: Habit, modifier: Modifier) {
     }
 }
 
-@Preview
-@Composable
-fun PreviewHabitCard() {
-    HabitCard(
-        habit = Habit(
-            id = UUID.randomUUID().toString(),
-            name = "fitness",
-            description = "go to the gym, go to the gym, go to the gym, go to the gym, go to the gym, go to the gym, go to the gym, go to the gym, go to the gym, go to the gym",
-            priority = HabitPriority.High,
-            type = HabitType.Good,
-            targetTimes = 3,
-            completeTimes = 0,
-            period = 7,
-            color = Color.Blue.value.toInt()
-        ),
-        navigateToHabitDetails = { }
-    )
-}
 
 @Preview
 @Composable
@@ -261,8 +360,7 @@ fun PreviewHabitList() {
                 period = 7,
                 color = Color.Blue.value.toInt()
             )
-        ),
-        navigateToHabitDetails = { }
+        )
     )
 }
 

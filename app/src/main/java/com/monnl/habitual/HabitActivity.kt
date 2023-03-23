@@ -2,12 +2,7 @@ package com.monnl.habitual
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Build
-import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -22,52 +17,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monnl.habitual.data.HabitsDataSource
-import com.monnl.habitual.data.models.Habit
-import com.monnl.habitual.data.models.HabitPriority
-import com.monnl.habitual.data.models.HabitType
-import com.monnl.habitual.ui.theme.HabitualTheme
+import com.monnl.habitual.data.models.models.Habit
+import com.monnl.habitual.data.models.models.HabitPriority
+import com.monnl.habitual.data.models.models.HabitType
 import java.util.*
-
-class HabitActivity : ComponentActivity() {
-
-    private var currentHabit: Habit? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        if (savedInstanceState == null) readExtras()
-
-        setContent {
-            HabitualTheme {
-                val editingState by rememberSaveable {
-                    mutableStateOf(if (currentHabit != null) EditingState.EXISTING_HABIT else EditingState.NEW_HABIT)
-                }
-                val habit by rememberSaveable { mutableStateOf(currentHabit ?: Habit()) }
-
-                HabitScreen(habit = habit, state = editingState)
-            }
-        }
-    }
-
-    private fun readExtras() = intent.extras?.run {
-        currentHabit = getParcelableHabit(this)
-    }
-
-    @Suppress("DEPRECATION")
-    private fun getParcelableHabit(bundle: Bundle): Habit? =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            bundle.getParcelable(HABIT_KEY, Habit::class.java)
-        } else bundle.getParcelable(HABIT_KEY)
-    
-    companion object {
-        const val HABIT_KEY = "habit"
-    }
-}
-
-enum class EditingState {
-    NEW_HABIT,
-    EXISTING_HABIT
-}
 
 fun isHabitValid(habit: Habit): Boolean =
     !(habit.name.isBlank()
@@ -75,20 +28,13 @@ fun isHabitValid(habit: Habit): Boolean =
             || habit.period == 0
             || habit.targetTimes == 0)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HabitScreen(habit: Habit, state: EditingState) {
-    Scaffold(
-        topBar = { HabitScreenTopAppBar(state) }
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            EditableHabit(habit)
-        }
-    }
-}
+fun SingleHabitScreen(
+    habitId: String?,
+    onSaveButtonClick: () -> Unit
+) {
+    val habit by rememberSaveable { mutableStateOf(HabitsDataSource.getHabit(habitId) ?: Habit()) }
 
-@Composable
-fun EditableHabit(habit: Habit) {
     Card(
         modifier = Modifier
             .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 24.dp)
@@ -118,21 +64,26 @@ fun EditableHabit(habit: Habit) {
                 modifier = Modifier.fillMaxWidth()
             )
             HabitTargetPeriodicity(habit = habit)
-            SaveHabitButton(habit = habit)
+            SaveHabitButton(
+                habit = habit,
+                onButtonClick = onSaveButtonClick
+            )
         }
     }
 }
 
 @Composable
-fun SaveHabitButton(habit: Habit) {
+fun SaveHabitButton(
+    habit: Habit,
+    onButtonClick: () -> Unit
+) {
     val activity = LocalContext.current as Activity
     ElevatedButton(
         onClick = {
             if (isHabitValid(habit)) {
                 HabitsDataSource.updateHabit(habit)
-                activity.finish()
+                onButtonClick()
             } else Toast.makeText(activity, "fill whole data, please", Toast.LENGTH_LONG).show()
-            Log.d("HabitActivity", "habit: $habit")
         }
 
     ) {
@@ -319,18 +270,6 @@ fun HabitTargetPeriodicity(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HabitScreenTopAppBar(state: EditingState) {
-    val topAppBarTitle = if (state == EditingState.NEW_HABIT) "New habit" else "Edit habit"
-    TopAppBar(
-        title = { Text(topAppBarTitle) },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-        )
-    )
-}
-
 @SuppressLint("UnrememberedMutableState")
 @Preview
 @Composable
@@ -346,5 +285,5 @@ fun PreviewHabitScreen() {
         period = 7,
         color = Color.Blue.value.toInt()
     )
-    HabitScreen(habit = habit, state = EditingState.EXISTING_HABIT)
+    SingleHabitScreen(habit.id) { }
 }
