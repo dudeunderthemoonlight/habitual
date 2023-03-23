@@ -1,17 +1,29 @@
 package com.monnl.habitual
 
+import com.monnl.habitual.data.HabitsDataSource
 import org.junit.Test
 
 import org.junit.Assert.*
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class ExampleUnitTest {
+
+class HabitDataTest {
+
+    private val habitsDataSource = HabitsDataSource
+    private val habit = habitsDataSource.habits[0]
+
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun getHabitIsCorrect() {
+        assertEquals(
+            habit,
+            HabitsDataSource.getHabit(habit.id)
+        )
+    }
+
+    @Test
+    fun isInListIsCorrect() {
+        assertEquals(
+            true,
+            HabitsDataSource.habitInList(habit)
+        )
     }
 }

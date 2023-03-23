@@ -1,9 +1,9 @@
 package com.monnl.habitual.data
 
-import androidx.compose.runtime.mutableStateListOf
-import com.monnl.habitual.data.models.Habit
-import com.monnl.habitual.data.models.HabitPriority
-import com.monnl.habitual.data.models.HabitType
+import android.graphics.Color
+import com.monnl.habitual.data.models.models.Habit
+import com.monnl.habitual.data.models.models.HabitPriority
+import com.monnl.habitual.data.models.models.HabitType
 import java.util.*
 
 object HabitsDataSource {
@@ -18,7 +18,7 @@ object HabitsDataSource {
             targetTimes = 4,
             completeTimes = 2,
             period = 7,
-            color = android.graphics.Color.CYAN
+            color = Color.CYAN
         ), Habit(
             id = UUID.randomUUID().toString(),
             name = "food",
@@ -28,7 +28,7 @@ object HabitsDataSource {
             targetTimes = 7,
             completeTimes = 2,
             period = 7,
-            color = android.graphics.Color.CYAN
+            color = Color.CYAN
         ), Habit(
             id = UUID.randomUUID().toString(),
             name = "sleep",
@@ -38,12 +38,12 @@ object HabitsDataSource {
             targetTimes = 7,
             completeTimes = 7,
             period = 7,
-            color = android.graphics.Color.CYAN
+            color = Color.CYAN
         )
     )
 
 
-    private val _habits = mutableStateListOf<Habit>()
+    private val _habits = mutableListOf<Habit>()
     val habits: List<Habit> = _habits
 
     init {
@@ -58,7 +58,10 @@ object HabitsDataSource {
         }
     }
 
-    private fun habitInList(habit: Habit?): Boolean = _habits.find { habit?.id == it.id } != null
+
+    fun habitInList(habit: Habit?): Boolean = _habits.firstOrNull { habit?.id == it.id } != null
 
     private fun addHabit(habit: Habit?) = habit?.let { _habits.add(it) }
+
+    fun getHabit(id: String?): Habit? = _habits.firstOrNull { it.id == id }
 }
