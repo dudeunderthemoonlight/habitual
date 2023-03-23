@@ -26,12 +26,6 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
-        <activity
-            android:name="com.monnl.habitual.HabitActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Habitual">
-        </activity>
     </application>
 
 </manifest>

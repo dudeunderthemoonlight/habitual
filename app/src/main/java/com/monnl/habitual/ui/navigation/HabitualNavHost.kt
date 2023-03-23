@@ -6,9 +6,9 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.monnl.habitual.HabitsScreen
-import com.monnl.habitual.InfoScreen
-import com.monnl.habitual.SingleHabitScreen
+import com.monnl.habitual.ui.habits.HabitsScreen
+import com.monnl.habitual.ui.habits.SingleHabitScreen
+import com.monnl.habitual.ui.info.InfoScreen
 
 
 @Composable
