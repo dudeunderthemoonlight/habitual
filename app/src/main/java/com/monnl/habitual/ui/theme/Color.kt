@@ -1,4 +1,4 @@
-package com.monnl.simpleapp.ui.theme
+package com.monnl.habitual.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
