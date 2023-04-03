@@ -7,14 +7,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.monnl.habitual.R
 
 @Composable
 fun InfoScreen() {
     Column(
-        modifier = Modifier.fillMaxSize().padding(all=25.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(all = 25.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Welcome to habitual - your every day helper. Add new habits and achieve them! Let's roll!")
+        Text(stringResource(id = R.string.information_screen_text))
     }
 }

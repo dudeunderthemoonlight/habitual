@@ -38,7 +38,6 @@ object SingleHabit : HabitualDestination {
     val arguments = listOf(
         navArgument(habitKey) {
             nullable = true
-            //defaultValue = null
             type = NavType.StringType
         }
     )

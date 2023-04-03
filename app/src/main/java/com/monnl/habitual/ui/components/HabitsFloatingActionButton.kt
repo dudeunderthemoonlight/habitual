@@ -5,6 +5,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.monnl.habitual.R
 
 @Composable
 fun HabitsFloatingActionButton(
@@ -13,6 +15,6 @@ fun HabitsFloatingActionButton(
     FloatingActionButton(
         onClick = { onHabitClick("") }
     ) {
-        Icon(Icons.Filled.Add, "Create new habit")
+        Icon(Icons.Filled.Add, stringResource(R.string.add_button_description))
     }
 }

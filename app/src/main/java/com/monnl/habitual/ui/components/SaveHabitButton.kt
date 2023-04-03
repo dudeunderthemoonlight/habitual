@@ -6,6 +6,8 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.monnl.habitual.R
 import com.monnl.habitual.data.HabitsDataSource
 import com.monnl.habitual.data.models.models.Habit
 
@@ -20,11 +22,15 @@ fun SaveHabitButton(
             if (isHabitValid(habit)) {
                 HabitsDataSource.updateHabit(habit)
                 onButtonClick()
-            } else Toast.makeText(activity, "fill whole data, please", Toast.LENGTH_LONG).show()
+            } else Toast.makeText(
+                activity,
+                activity.getString(R.string.edit_warning),
+                Toast.LENGTH_LONG
+            ).show()
         }
 
     ) {
-        Text(text = "Save habit")
+        Text(stringResource(id = R.string.saving_button))
     }
 }
 

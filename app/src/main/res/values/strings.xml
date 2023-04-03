@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">habitual</string>
+    <string name="edit_warning">Fill whole data, please</string>
+    <string name="name">Name</string>
+    <string name="description">Description</string>
+    <string name="targetTimes1">I\'m gonna do it </string>
+    <string name="targetTimes2"> times,  </string>
+    <string name="periodicity1"> In </string>
+    <string name="periodicity2"> days.</string>
+    <string name="priority">Priority</string>
+    <string name="saving_button">Save</string>
+    <string name="add_button_description">Create new habit</string>
+    <string name="radio_button_lead_text">Choose habit type: </string>
+    <string name="top_appbar_description">Open navigation drawer</string>
+    <string name="information_screen_text">Welcome to habitual - your every day helper. Add new habits and achieve them! Let\'s roll!</string>
 </resources>

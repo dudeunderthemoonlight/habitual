@@ -6,8 +6,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.monnl.habitual.*
+import com.monnl.habitual.R
 import com.monnl.habitual.data.HabitsDataSource
 import com.monnl.habitual.data.models.models.Habit
 import com.monnl.habitual.data.models.models.HabitPriority
@@ -77,7 +79,7 @@ fun NameTextField(
             name = it
         },
         maxLines = 1,
-        label = { Text("Name") }
+        label = { Text(stringResource(R.string.name)) }
     )
 }
 
@@ -97,7 +99,7 @@ fun HabitDescriptionField(
             description = it
         },
         maxLines = 4,
-        label = { Text("Description") }
+        label = { Text(stringResource(R.string.description)) }
     )
 }
 
@@ -119,7 +121,7 @@ fun HabitTargetPeriodicity(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Text(text = "I'm gonna do it ")
+            Text(stringResource(R.string.targetTimes1))
             OutlinedTextField(
                 modifier = Modifier.width(40.dp),
                 maxLines = 1,
@@ -130,13 +132,13 @@ fun HabitTargetPeriodicity(
                         targetTimes = it
                     }
                 })
-            Text(text = " times, ")
+            Text(stringResource(R.string.targetTimes2))
         }
         Row(
             modifier = modifier,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = " In ")
+            Text(text = stringResource(R.string.periodicity1))
             OutlinedTextField(
                 modifier = Modifier.width(40.dp),
                 maxLines = 1,
@@ -147,8 +149,7 @@ fun HabitTargetPeriodicity(
                         periodicity = it
                     }
                 })
-
-            Text(text = " days.")
+            Text(stringResource(R.string.periodicity2))
         }
     }
 }
@@ -176,7 +177,7 @@ fun PrioritySpinner(
                 readOnly = true,
                 value = selectedOptionText,
                 onValueChange = { },
-                label = { Text("Priority") },
+                label = { Text(stringResource(R.string.priority)) },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = expanded
@@ -198,7 +199,7 @@ fun PrioritySpinner(
                             expanded = false
                             habit.priority = selectionOption
                         },
-                        text = { Text(text = selectionOption.toString()) }
+                        text = { Text(selectionOption.toString()) }
                     )
                 }
             }
