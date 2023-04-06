@@ -21,7 +21,7 @@ fun HabitLinearProgressBar(habit: Habit, modifier: Modifier) {
 
     val progress = remember { Animatable(0f) }
 
-    LaunchedEffect(true) {
+    LaunchedEffect(habit) {
         progress.animateTo(
             targetValue = targetProgress,
             animationSpec = tween(1200)
