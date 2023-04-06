@@ -10,6 +10,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.monnl.habitual.data.HabitsDataSource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monnl.habitual.data.models.models.Habit
 import com.monnl.habitual.data.models.models.HabitPriority
 import com.monnl.habitual.data.models.models.HabitType
@@ -29,16 +30,38 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HabitsScreen(
-    habits: List<Habit> = HabitsDataSource.habits,
     onHabitClick: (String) -> Unit
 ) {
+    val viewModel: HabitsViewModel = viewModel()
+
+    HabitsBottomSheetScaffold(
+        viewModel = viewModel,
+        content = { innerPadding ->
+            HabitsScaffold(
+                contentPadding = innerPadding,
+                onHabitClick = onHabitClick,
+                viewModel = viewModel
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun HabitsScaffold(
+    contentPadding: PaddingValues,
+    onHabitClick: (String) -> Unit,
+    viewModel: HabitsViewModel
+) {
+    val suggestedHabits by viewModel.suggestedHabits.observeAsState()
+
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        modifier = Modifier.padding(contentPadding),
         floatingActionButton = { HabitsFloatingActionButton(onHabitClick) }
     )
     { innerPadding ->
@@ -48,18 +71,21 @@ fun HabitsScreen(
                     categories = habitsScreenCategories,
                     selectedCategoryIndex = pagerState.currentPage,
                     onCategorySelected = { index ->
-                        scope.launch { pagerState.animateScrollToPage(index) }
+                        scope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
                     }
                 )
                 HabitsTypeHorizontalPager(
                     state = pagerState,
-                    habits = habits,
+                    habits = suggestedHabits!!,
                     onHabitClick = onHabitClick
                 )
             }
         }
     }
 }
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -73,9 +99,7 @@ fun HabitsTypeHorizontalPager(
             pageCount = habitsScreenCategories.size,
             state = state
         ) { index ->
-            val filterPredicate = habitsScreenCategories[index].filterPredicate
-            val habitsToShow = remember { habits.filter { filterPredicate(it) } }
-
+            val habitsToShow = habits.filter { habitsScreenCategories[index].filterPredicate(it) }
             HabitsList(
                 habits = habitsToShow,
                 onHabitClick = onHabitClick

@@ -39,6 +39,28 @@ object HabitsDataSource {
             completeTimes = 7,
             period = 7,
             color = Color.CYAN
+        ),
+        Habit(
+            id = UUID.randomUUID().toString(),
+            name = "smoking",
+            description = "STOP it",
+            priority = HabitPriority.High,
+            type = HabitType.Bad,
+            targetTimes = 4,
+            completeTimes = 2,
+            period = 7,
+            color = Color.CYAN
+        ),
+        Habit(
+            id = UUID.randomUUID().toString(),
+            name = "some name",
+            description = "some description",
+            priority = HabitPriority.Low,
+            type = HabitType.Bad,
+            targetTimes = 4,
+            completeTimes = 2,
+            period = 7,
+            color = Color.CYAN
         )
     )
 
