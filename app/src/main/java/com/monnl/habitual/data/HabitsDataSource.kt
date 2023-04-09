@@ -4,6 +4,7 @@ import android.graphics.Color
 import com.monnl.habitual.data.models.models.Habit
 import com.monnl.habitual.data.models.models.HabitPriority
 import com.monnl.habitual.data.models.models.HabitType
+import kotlinx.coroutines.flow.*
 import java.util.*
 
 object HabitsDataSource {
@@ -64,17 +65,22 @@ object HabitsDataSource {
         )
     )
 
+    private var _habits = listOf<Habit>()
+        set(value) {
+            _habitsFlow.value = value
+            field = value
+        }
 
-    private val _habits = mutableListOf<Habit>()
-    val habits: List<Habit> = _habits
+    private val _habitsFlow = MutableStateFlow(listOf<Habit>())
+    val habitsFlow: StateFlow<List<Habit>> = _habitsFlow
 
     init {
-        rawHabitsData.forEach { _habits.add(it) }
+        _habits = rawHabitsData
     }
 
     fun updateHabit(newHabit: Habit?) {
         if (habitInList(newHabit)) {
-            _habits.replaceAll { if (it.id == newHabit?.id) newHabit else it }
+            _habits = _habits.map { if (it.id == newHabit?.id) newHabit else it }
         } else {
             addHabit(newHabit)
         }
@@ -83,7 +89,7 @@ object HabitsDataSource {
 
     fun habitInList(habit: Habit?): Boolean = _habits.firstOrNull { habit?.id == it.id } != null
 
-    private fun addHabit(habit: Habit?) = habit?.let { _habits.add(it) }
+    private fun addHabit(habit: Habit?) = habit?.let { _habits = _habits + habit }
 
     fun getHabit(id: String?): Habit? = _habits.firstOrNull { it.id == id }
 }
