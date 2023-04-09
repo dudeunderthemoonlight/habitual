@@ -6,6 +6,6 @@
 * Добавление новой привычки для отслеживания.
 * Редактирование существующей.
 
-Технологии: Jetpack Compose
+MVVM приложение по технологиям: Jetpack Compose, Coroutines Flow
 
-(not finished)
+(in progress)
