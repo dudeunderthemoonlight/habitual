@@ -9,7 +9,7 @@ import org.junit.Assert.*
 class HabitDataTest {
 
     private val habitsDataSource = HabitsDataSource
-    private val habit = habitsDataSource.habits[0]
+    private val habit = habitsDataSource.habitsFlow.value[0]
 
     @Test
     fun getHabitIsCorrect() {

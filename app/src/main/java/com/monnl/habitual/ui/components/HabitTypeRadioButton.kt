@@ -27,20 +27,18 @@ fun HabitTypeRadioButton(
 
     Row(
         modifier
-            .selectableGroup()
+            .selectableGroup(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             modifier = Modifier.weight(1f),
             text = stringResource(R.string.radio_button_lead_text)
         )
-
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column {
                 types.forEach { type ->
                     Row(
                         modifier = Modifier

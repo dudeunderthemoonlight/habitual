@@ -1,16 +1,18 @@
 package com.monnl.habitual.ui.habits
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monnl.habitual.*
 import com.monnl.habitual.R
-import com.monnl.habitual.data.HabitsDataSource
 import com.monnl.habitual.data.models.models.Habit
 import com.monnl.habitual.data.models.models.HabitPriority
 import com.monnl.habitual.ui.components.HabitTypeRadioButton
@@ -21,12 +23,16 @@ fun SingleHabitScreen(
     habitId: String?,
     onSaveButtonClick: () -> Unit
 ) {
-    val habit by rememberSaveable { mutableStateOf(HabitsDataSource.getHabit(habitId) ?: Habit()) }
+    val viewModel: SingleHabitViewModel =
+        viewModel<SingleHabitViewModel>().apply { this.habitId = habitId }
+
+    val habit = viewModel.habitState.collectAsState().value
 
     Card(
         modifier = Modifier
             .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 24.dp)
             .wrapContentSize(Alignment.Center)
+            .verticalScroll(rememberScrollState())
     ) {
         Column(
             modifier = Modifier
@@ -49,7 +55,7 @@ fun SingleHabitScreen(
             )
             HabitTypeRadioButton(
                 habit = habit,
-                modifier = Modifier.fillMaxWidth()
+                //modifier = Modifier.fillMaxWidth()
             )
             HabitTargetPeriodicity(
                 habit = habit,
@@ -57,13 +63,13 @@ fun SingleHabitScreen(
             )
             SaveHabitButton(
                 habit = habit,
-                onButtonClick = onSaveButtonClick
+                onButtonClick = onSaveButtonClick,
+                viewModel = viewModel
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NameTextField(
     habit: Habit,
@@ -83,7 +89,6 @@ fun NameTextField(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitDescriptionField(
     habit: Habit,
@@ -104,7 +109,6 @@ fun HabitDescriptionField(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitTargetPeriodicity(
     habit: Habit,
@@ -121,9 +125,9 @@ fun HabitTargetPeriodicity(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Text(stringResource(R.string.targetTimes1))
+            Text(stringResource(R.string.targetTimes))
             OutlinedTextField(
-                modifier = Modifier.width(40.dp),
+                modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
                 value = targetTimes,
                 onValueChange = {
@@ -131,16 +135,17 @@ fun HabitTargetPeriodicity(
                         habit.targetTimes = it.toIntOrNull()
                         targetTimes = it
                     }
-                })
-            Text(stringResource(R.string.targetTimes2))
+                },
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
+            )
         }
         Row(
             modifier = modifier,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = stringResource(R.string.periodicity1))
+            Text(text = stringResource(R.string.periodicity))
             OutlinedTextField(
-                modifier = Modifier.width(40.dp),
+                modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
                 value = periodicity,
                 onValueChange = {
@@ -148,8 +153,10 @@ fun HabitTargetPeriodicity(
                         habit.period = it.toIntOrNull()
                         periodicity = it
                     }
-                })
-            Text(stringResource(R.string.periodicity2))
+                },
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
+            )
+            Text(stringResource(R.string.periodicity_days))
         }
     }
 }
