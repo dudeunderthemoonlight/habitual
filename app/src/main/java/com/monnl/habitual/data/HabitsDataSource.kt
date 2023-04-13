@@ -1,9 +1,9 @@
 package com.monnl.habitual.data
 
 import android.graphics.Color
-import com.monnl.habitual.data.models.models.Habit
-import com.monnl.habitual.data.models.models.HabitPriority
-import com.monnl.habitual.data.models.models.HabitType
+import com.monnl.habitual.data.models.Habit
+import com.monnl.habitual.data.models.HabitPriority
+import com.monnl.habitual.data.models.HabitType
 import kotlinx.coroutines.flow.*
 import java.util.*
 
@@ -75,7 +75,7 @@ object HabitsDataSource {
     val habitsFlow: StateFlow<List<Habit>> = _habitsFlow
 
     init {
-        _habits = rawHabitsData
+            _habits = rawHabitsData
     }
 
     fun updateHabit(newHabit: Habit?) {

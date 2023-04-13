@@ -18,9 +18,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.monnl.habitual.data.models.models.Habit
-import com.monnl.habitual.data.models.models.HabitPriority
-import com.monnl.habitual.data.models.models.HabitType
+import com.monnl.habitual.data.models.Habit
+import com.monnl.habitual.data.models.HabitPriority
+import com.monnl.habitual.data.models.HabitType
 import com.monnl.habitual.ui.components.HabitLinearProgressBar
 import com.monnl.habitual.ui.components.HabitsFloatingActionButton
 import com.monnl.habitual.ui.components.HabitsTabRow

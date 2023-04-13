@@ -2,7 +2,7 @@ package com.monnl.habitual.ui.habits
 
 import androidx.lifecycle.ViewModel
 import com.monnl.habitual.data.HabitsDataSource
-import com.monnl.habitual.data.models.models.Habit
+import com.monnl.habitual.data.models.Habit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

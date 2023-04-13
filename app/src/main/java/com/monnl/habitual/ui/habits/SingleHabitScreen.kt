@@ -13,8 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monnl.habitual.*
 import com.monnl.habitual.R
-import com.monnl.habitual.data.models.models.Habit
-import com.monnl.habitual.data.models.models.HabitPriority
+import com.monnl.habitual.data.models.Habit
+import com.monnl.habitual.data.models.HabitPriority
 import com.monnl.habitual.ui.components.HabitTypeRadioButton
 import com.monnl.habitual.ui.components.SaveHabitButton
 

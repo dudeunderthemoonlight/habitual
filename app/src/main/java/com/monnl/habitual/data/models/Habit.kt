@@ -1,4 +1,4 @@
-package com.monnl.habitual.data.models.models
+package com.monnl.habitual.data.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
