@@ -13,21 +13,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monnl.habitual.*
 import com.monnl.habitual.R
-import com.monnl.habitual.data.models.models.Habit
-import com.monnl.habitual.data.models.models.HabitPriority
+import com.monnl.habitual.data.models.Habit
+import com.monnl.habitual.data.models.HabitPriority
 import com.monnl.habitual.ui.components.HabitTypeRadioButton
 import com.monnl.habitual.ui.components.SaveHabitButton
 
 @Composable
 fun SingleHabitScreen(
     habitId: String?,
-    onSaveButtonClick: () -> Unit
+    onSaveButtonClick: () -> Unit,
+    viewModel: SingleHabitViewModel = viewModel<SingleHabitViewModel>(
+        factory = SingleHabitViewModel.Factory
+    ).apply {
+        this.habitId = habitId
+    }
 ) {
-    val viewModel: SingleHabitViewModel =
-        viewModel<SingleHabitViewModel>().apply { this.habitId = habitId }
-
     val habit = viewModel.habitState.collectAsState().value
-
     Card(
         modifier = Modifier
             .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 24.dp)

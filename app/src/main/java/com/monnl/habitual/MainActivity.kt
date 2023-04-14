@@ -14,7 +14,6 @@ import com.monnl.habitual.ui.components.HabitualTopAppBar
 import com.monnl.habitual.ui.navigation.*
 import com.monnl.habitual.ui.theme.HabitualTheme
 import kotlinx.coroutines.launch
-import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +22,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitualMainComposable() {
     HabitualTheme {

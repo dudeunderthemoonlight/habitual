@@ -11,8 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
-import com.monnl.habitual.data.models.models.Habit
-import com.monnl.habitual.data.models.models.HabitType
+import com.monnl.habitual.data.models.Habit
+import com.monnl.habitual.data.models.HabitType
 import com.monnl.habitual.R
 
 @Composable

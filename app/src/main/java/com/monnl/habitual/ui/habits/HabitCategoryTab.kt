@@ -1,7 +1,7 @@
-package com.monnl.habitual.ui
+package com.monnl.habitual.ui.habits
 
-import com.monnl.habitual.data.models.models.Habit
-import com.monnl.habitual.data.models.models.HabitType
+import com.monnl.habitual.data.models.Habit
+import com.monnl.habitual.data.models.HabitType
 
 interface HabitCategoryTab {
     val text: String

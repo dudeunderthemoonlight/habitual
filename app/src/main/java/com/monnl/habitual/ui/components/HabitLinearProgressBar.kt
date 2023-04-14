@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
-import com.monnl.habitual.data.models.models.Habit
+import com.monnl.habitual.data.models.Habit
 
 @Composable
 fun HabitLinearProgressBar(habit: Habit, modifier: Modifier) {

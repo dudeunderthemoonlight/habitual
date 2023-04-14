@@ -2,17 +2,24 @@ package com.monnl.habitual.ui.habits
 
 
 import androidx.lifecycle.ViewModel
-import com.monnl.habitual.data.HabitsDataSource
-import com.monnl.habitual.data.models.models.Habit
-import com.monnl.habitual.data.models.models.priorityMap
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.monnl.habitual.MyApplication
+import com.monnl.habitual.data.models.Habit
+import com.monnl.habitual.data.models.priorityMap
+import com.monnl.habitual.data.repos.HabitsRepository
 import com.monnl.habitual.ui.habits.sorting.SortContentState
 import com.monnl.habitual.ui.habits.sorting.SortOptions
 import com.monnl.habitual.utils.modifyIf
 import kotlinx.coroutines.flow.*
 
-class HabitsViewModel : ViewModel() {
+class HabitsViewModel(
+    habitsRepository: HabitsRepository
+) : ViewModel() {
 
-    private val habitsFlow = HabitsDataSource.habitsFlow
+    private val habitsFlow = habitsRepository.habits
     private val searchFlow = MutableStateFlow("")
     private val sortFlow = MutableStateFlow<SortContentState?>(null)
 
@@ -39,4 +46,15 @@ class HabitsViewModel : ViewModel() {
             SortOptions.CompleteStatus -> habit.completeTimes!!.toFloat() / habit.targetTimes!!.toFloat()
             SortOptions.Priority -> priorityMap[habit.priority]!!
         }
+
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val habitsRepository =
+                    (this[APPLICATION_KEY] as MyApplication).appContainer.habitsRepository
+                HabitsViewModel(habitsRepository)
+            }
+        }
+    }
 }

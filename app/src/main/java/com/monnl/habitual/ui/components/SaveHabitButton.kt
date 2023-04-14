@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.monnl.habitual.R
-import com.monnl.habitual.data.models.models.Habit
+import com.monnl.habitual.data.models.Habit
 import com.monnl.habitual.ui.habits.SingleHabitViewModel
 
 @Composable
