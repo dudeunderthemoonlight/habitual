@@ -21,13 +21,14 @@ import com.monnl.habitual.ui.components.SaveHabitButton
 @Composable
 fun SingleHabitScreen(
     habitId: String?,
-    onSaveButtonClick: () -> Unit
+    onSaveButtonClick: () -> Unit,
+    viewModel: SingleHabitViewModel = viewModel<SingleHabitViewModel>(
+        factory = SingleHabitViewModel.Factory
+    ).apply {
+        this.habitId = habitId
+    }
 ) {
-    val viewModel: SingleHabitViewModel =
-        viewModel<SingleHabitViewModel>().apply { this.habitId = habitId }
-
     val habit = viewModel.habitState.collectAsState().value
-
     Card(
         modifier = Modifier
             .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 24.dp)

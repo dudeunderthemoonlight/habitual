@@ -24,17 +24,15 @@ import com.monnl.habitual.data.models.HabitType
 import com.monnl.habitual.ui.components.HabitLinearProgressBar
 import com.monnl.habitual.ui.components.HabitsFloatingActionButton
 import com.monnl.habitual.ui.components.HabitsTabRow
-import com.monnl.habitual.ui.habitsScreenCategories
 import kotlinx.coroutines.launch
 import java.util.*
 
 
 @Composable
 fun HabitsScreen(
-    onHabitClick: (String) -> Unit
+    onHabitClick: (String) -> Unit,
+    viewModel: HabitsViewModel = viewModel(factory = HabitsViewModel.Factory)
 ) {
-    val viewModel: HabitsViewModel = viewModel()
-
     HabitsBottomSheetScaffold(
         viewModel = viewModel,
         content = { innerPadding ->
