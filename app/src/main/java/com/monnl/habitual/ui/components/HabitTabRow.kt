@@ -4,7 +4,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.monnl.habitual.ui.HabitCategoryTab
+import com.monnl.habitual.ui.habits.HabitCategoryTab
 
 @Composable
 fun HabitsTabRow(

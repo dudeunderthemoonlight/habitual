@@ -1,4 +1,4 @@
-package com.monnl.habitual.ui
+package com.monnl.habitual.ui.habits
 
 import com.monnl.habitual.data.models.Habit
 import com.monnl.habitual.data.models.HabitType
