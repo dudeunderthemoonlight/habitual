@@ -2,23 +2,28 @@ package com.monnl.habitual.ui.habits
 
 
 import androidx.lifecycle.ViewModel
-import com.monnl.habitual.data.HabitsDataSource
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.monnl.habitual.MyApplication
 import com.monnl.habitual.data.models.Habit
 import com.monnl.habitual.data.models.priorityMap
+import com.monnl.habitual.data.repos.HabitsRepository
 import com.monnl.habitual.ui.habits.sorting.SortContentState
 import com.monnl.habitual.ui.habits.sorting.SortOptions
 import com.monnl.habitual.utils.modifyIf
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 
-class HabitsViewModel : ViewModel() {
+class HabitsViewModel(
+    habitsRepository: HabitsRepository
+) : ViewModel() {
 
-    private val habitsFlow = HabitsDataSource.habitsFlow
+    private val habitsFlow = habitsRepository.habits
     private val searchFlow = MutableStateFlow("")
     private val sortFlow = MutableStateFlow<SortContentState?>(null)
 
-    val suggestedHabits: StateFlow<List<Habit>> =
+    val suggestedHabits: Flow<List<Habit>> =
         combine(habitsFlow, searchFlow, sortFlow) { habits, search, sort ->
             habits
                 .filter { it.name.contains(search) }
@@ -26,7 +31,7 @@ class HabitsViewModel : ViewModel() {
                     this.sortedWith(compareBy { calculateParameter(sort!!.parameter, it) })
                         .modifyIf(sort!!.descending) { reversed() }
                 }
-        }.stateIn(CoroutineScope(Dispatchers.Default), SharingStarted.WhileSubscribed(), emptyList())
+        }
 
     fun toHabitNameChanged(newName: String) {
         searchFlow.value = newName
@@ -41,4 +46,15 @@ class HabitsViewModel : ViewModel() {
             SortOptions.CompleteStatus -> habit.completeTimes!!.toFloat() / habit.targetTimes!!.toFloat()
             SortOptions.Priority -> priorityMap[habit.priority]!!
         }
+
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val habitsRepository =
+                    (this[APPLICATION_KEY] as MyApplication).appContainer.habitsRepository
+                HabitsViewModel(habitsRepository)
+            }
+        }
+    }
 }
