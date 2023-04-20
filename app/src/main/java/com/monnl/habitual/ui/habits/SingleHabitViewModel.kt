@@ -28,8 +28,8 @@ class SingleHabitViewModel(
     }
 
     fun updateHabit(habit: Habit) {
-        habitsRepository.let {
-            if (!habitId.isNullOrBlank()) it.updateHabit(habit) else it.addHabit(habit)
+        habitsRepository.apply {
+            if (!habitId.isNullOrBlank()) this.updateHabit(habit) else this.addHabit(habit)
         }
     }
 
