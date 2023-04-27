@@ -11,8 +11,11 @@ class LocalHabitsDataSource(private val habits: HabitsDao) {
     fun getHabits(): Flow<List<Habit>> =
         habits.getAll().map { list -> list.map { it.asDomainModel() } }
 
-    fun getHabit(id: String): Habit = habits.getById(id).asDomainModel()
-    fun addHabit(habit: Habit) = habits.insertAll(habit.asDatabaseModel())
-    fun updateHabit(habit: Habit) = habits.update(habit.asDatabaseModel())
-    fun deleteHabit(habit: Habit) = habits.delete(habit.asDatabaseModel())
+    fun observeHabit(id: String?): Flow<Habit> =
+        habits.observeHabit(id).map { it.asDomainModel() }
+
+    suspend fun getHabit(id: String): Habit = habits.getById(id).asDomainModel()
+    suspend fun addHabit(habit: Habit) = habits.insertAll(habit.asDatabaseModel())
+    suspend fun updateHabit(habit: Habit) = habits.update(habit.asDatabaseModel())
+    suspend fun deleteHabit(habit: Habit) = habits.delete(habit.asDatabaseModel())
 }
