@@ -3,13 +3,14 @@ package com.monnl.habitual.ui.habits
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.monnl.habitual.MyApplication
 import com.monnl.habitual.data.models.Habit
 import com.monnl.habitual.data.repos.HabitsRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class SingleHabitViewModel(
     private val habitsRepository: HabitsRepository
@@ -20,16 +21,21 @@ class SingleHabitViewModel(
     var habitId: String? = null
         set(value) {
             field = value
-            fetchHabit(value)
+            if (value != field) fetchHabit(value)
         }
 
     private fun fetchHabit(habitId: String?) {
-        if (!habitId.isNullOrBlank()) _habitState.value = habitsRepository.getHabit(habitId)
+        if (!habitId.isNullOrBlank())
+            viewModelScope.launch {
+                _habitState.value = habitsRepository.getHabit(habitId)
+            }
     }
 
     fun updateHabit(habit: Habit) {
         habitsRepository.let {
-            if (!habitId.isNullOrBlank()) it.updateHabit(habit) else it.addHabit(habit)
+            viewModelScope.launch {
+                if (!habitId.isNullOrBlank()) it.updateHabit(habit) else it.addHabit(habit)
+            }
         }
     }
 

@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monnl.habitual.*
 import com.monnl.habitual.R
@@ -28,7 +29,8 @@ fun SingleHabitScreen(
         this.habitId = habitId
     }
 ) {
-    val habit = viewModel.habitState.collectAsState().value
+    val habit by viewModel.habitState.collectAsStateWithLifecycle()
+
     Card(
         modifier = Modifier
             .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 24.dp)
