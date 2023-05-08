@@ -5,8 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface HabitsRepository {
     val habits: Flow<List<Habit>>
-    fun getHabit(id: String): Habit
-    fun updateHabit(habit: Habit)
-    fun addHabit(habit: Habit)
-    fun delete(habit: Habit)
+    fun observeHabit(id: String?): Flow<Habit>
+    suspend fun getHabit(id: String): Habit
+    suspend fun updateHabit(habit: Habit)
+    suspend fun addHabit(habit: Habit)
+    suspend fun delete(habit: Habit)
 }

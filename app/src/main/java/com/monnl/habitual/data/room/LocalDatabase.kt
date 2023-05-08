@@ -35,6 +35,6 @@ abstract class LocalDatabase : RoomDatabase() {
                         instance?.habitsDao?.insertAll(*PREPOPULATE_HABITS)
                     }
                 }
-            }).allowMainThreadQueries().build()
+            }).build()
     }
 }

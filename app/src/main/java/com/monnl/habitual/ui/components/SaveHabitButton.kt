@@ -9,20 +9,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.monnl.habitual.R
 import com.monnl.habitual.data.models.Habit
-import com.monnl.habitual.ui.habits.SingleHabitViewModel
 
 @Composable
 fun SaveHabitButton(
     habit: Habit,
-    viewModel: SingleHabitViewModel,
-    onButtonClick: () -> Unit
+    onButtonClick: (Habit) -> Unit
 ) {
     val activity = LocalContext.current as Activity
     ElevatedButton(
         onClick = {
             if (isHabitValid(habit)) {
-                viewModel.updateHabit(habit)
-                onButtonClick()
+                onButtonClick(habit)
             } else Toast.makeText(
                 activity,
                 activity.getString(R.string.edit_warning),
