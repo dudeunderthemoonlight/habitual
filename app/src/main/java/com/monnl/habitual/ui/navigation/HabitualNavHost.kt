@@ -36,12 +36,11 @@ fun HabitualNavHost(
         composable(
             route = SingleHabit.routeWithArgs,
             arguments = SingleHabit.arguments
-        ) { navBackStackEntry ->
-            val habitId = navBackStackEntry.arguments?.getString(SingleHabit.habitKey)
-
+        ) {
             SingleHabitScreen(
-                habitId = habitId,
-                onSaveButtonClick = { navController.popBackStack() }
+                navigate = {
+                    navController.popBackStack()
+                }
             )
         }
     }

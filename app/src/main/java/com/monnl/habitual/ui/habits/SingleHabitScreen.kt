@@ -21,16 +21,43 @@ import com.monnl.habitual.ui.components.SaveHabitButton
 
 @Composable
 fun SingleHabitScreen(
-    habitId: String?,
-    onSaveButtonClick: () -> Unit,
-    viewModel: SingleHabitViewModel = viewModel<SingleHabitViewModel>(
-        factory = SingleHabitViewModel.Factory
-    ).apply {
-        this.habitId = habitId
-    }
+    navigate: () -> Unit,
+    viewModel: SingleHabitViewModel = viewModel(factory = SingleHabitViewModel.Factory)
 ) {
-    val habit by viewModel.habitState.collectAsStateWithLifecycle()
+    val state = viewModel.habitState.collectAsStateWithLifecycle()
+    SingleHabitContent(
+        habitState = state.value,
+        onSaveButtonClick = { viewModel.updateHabit(it); navigate() })
+}
 
+@Composable
+fun SingleHabitContent(
+    habitState: HabitState,
+    onSaveButtonClick: (habit: Habit) -> Unit
+) {
+    when (habitState) {
+        is HabitState.Success -> ReadyScreen(
+            onSaveButtonClick = onSaveButtonClick,
+            habit = habitState.habit
+        )
+        is HabitState.Loading -> LoadingScreen()
+        is HabitState.Error -> ErrorScreen()
+    }
+}
+
+@Composable
+fun LoadingScreen() {
+}
+
+@Composable
+fun ErrorScreen() {
+}
+
+@Composable
+fun ReadyScreen(
+    onSaveButtonClick: (habit: Habit) -> Unit,
+    habit: Habit
+) {
     Card(
         modifier = Modifier
             .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 24.dp)
@@ -57,8 +84,7 @@ fun SingleHabitScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             HabitTypeRadioButton(
-                habit = habit,
-                //modifier = Modifier.fillMaxWidth()
+                habit = habit
             )
             HabitTargetPeriodicity(
                 habit = habit,
@@ -66,8 +92,7 @@ fun SingleHabitScreen(
             )
             SaveHabitButton(
                 habit = habit,
-                onButtonClick = onSaveButtonClick,
-                viewModel = viewModel
+                onButtonClick = onSaveButtonClick
             )
         }
     }
