@@ -3,6 +3,7 @@ package com.monnl.habitual.data.sources
 import com.monnl.habitual.data.mappers.asDatabaseModel
 import com.monnl.habitual.data.mappers.asDomainModel
 import com.monnl.habitual.data.models.Habit
+import com.monnl.habitual.data.room.DatabaseHabit
 import com.monnl.habitual.data.room.HabitsDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -18,4 +19,6 @@ class LocalHabitsDataSource(private val habits: HabitsDao) {
     suspend fun addHabit(habit: Habit) = habits.insertAll(habit.asDatabaseModel())
     suspend fun updateHabit(habit: Habit) = habits.update(habit.asDatabaseModel())
     suspend fun deleteHabit(habit: Habit) = habits.delete(habit.asDatabaseModel())
+    suspend fun insertDatabaseHabits(list: List<DatabaseHabit>) =
+        habits.insertAll(*list.toTypedArray())
 }
