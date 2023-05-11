@@ -17,16 +17,17 @@ class SingleHabitViewModel(
 ) : ViewModel() {
 
     private val habitId: String? = savedStateHandle[SingleHabit.habitKey]
-    private val _habitState = MutableStateFlow<HabitState>(HabitState.Loading)
-    val habitState: StateFlow<HabitState> = _habitState
+    private val _habitUiState = MutableStateFlow<HabitUiState>(HabitUiState.Loading)
+    val habitUiState: StateFlow<HabitUiState> = _habitUiState
 
     init { habitId?.let { fetchHabit(it) } }
 
     private fun fetchHabit(id: String?) {
         if (!id.isNullOrBlank())
             viewModelScope.launch {
-                _habitState.value = HabitState.Success(habitsRepository.getHabit(id))
+                _habitUiState.value = HabitUiState.Success(habitsRepository.getHabit(id))
             }
+        else _habitUiState.value = HabitUiState.Success(Habit())
     }
 
     fun updateHabit(habit: Habit) {
