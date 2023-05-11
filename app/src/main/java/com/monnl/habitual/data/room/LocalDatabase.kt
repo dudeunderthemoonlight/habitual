@@ -4,11 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
-import com.monnl.habitual.data.HabitsData.PREPOPULATE_HABITS
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Database(entities = [DatabaseHabit::class], version = 1)
 abstract class LocalDatabase : RoomDatabase() {
@@ -28,13 +23,6 @@ abstract class LocalDatabase : RoomDatabase() {
                 context.applicationContext,
                 LocalDatabase::class.java,
                 "habits_database"
-            ).addCallback(object : Callback() {
-                override fun onCreate(db: SupportSQLiteDatabase) {
-                    super.onCreate(db)
-                    CoroutineScope(Dispatchers.IO).launch {
-                        instance?.habitsDao?.insertAll(*PREPOPULATE_HABITS)
-                    }
-                }
-            }).build()
+            ).build()
     }
 }
