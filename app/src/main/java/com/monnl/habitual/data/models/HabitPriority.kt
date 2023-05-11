@@ -9,3 +9,9 @@ val priorityMap = mapOf(
     HabitPriority.Medium to 2,
     HabitPriority.Low to 3
 )
+
+val intToPriorityMap = mapOf(
+    0 to HabitPriority.High,
+    1 to HabitPriority.Medium,
+    2 to HabitPriority.Low
+)

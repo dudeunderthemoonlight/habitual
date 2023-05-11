@@ -4,6 +4,7 @@ package com.monnl.habitual.ui.habits
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.monnl.habitual.MyApplication
@@ -14,9 +15,10 @@ import com.monnl.habitual.ui.habits.sorting.SortContentState
 import com.monnl.habitual.ui.habits.sorting.SortOptions
 import com.monnl.habitual.utils.modifyIf
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class HabitsViewModel(
-    habitsRepository: HabitsRepository
+    private val habitsRepository: HabitsRepository
 ) : ViewModel() {
 
     private val habitsFlow = habitsRepository.habits
@@ -40,6 +42,8 @@ class HabitsViewModel(
     fun sortBy(sortState: SortContentState) {
         sortFlow.value = sortState
     }
+
+    fun refreshHabits() = viewModelScope.launch { habitsRepository.refreshHabits() }
 
     private fun calculateParameter(parameter: SortOptions, habit: Habit): Comparable<*> =
         when (parameter) {
