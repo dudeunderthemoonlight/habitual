@@ -3,6 +3,7 @@ package com.monnl.habitual
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,13 +12,17 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.monnl.habitual.ui.components.HabitualTopAppBar
+import com.monnl.habitual.ui.habits.HabitsViewModel
 import com.monnl.habitual.ui.navigation.*
 import com.monnl.habitual.ui.theme.HabitualTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private val habitsViewModel: HabitsViewModel by viewModels { HabitsViewModel.Factory }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        habitsViewModel.refreshHabits()
         setContent { HabitualMainComposable() }
     }
 }
