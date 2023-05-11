@@ -24,33 +24,35 @@ fun SingleHabitScreen(
     navigate: () -> Unit,
     viewModel: SingleHabitViewModel = viewModel(factory = SingleHabitViewModel.Factory)
 ) {
-    val state = viewModel.habitState.collectAsStateWithLifecycle()
+    val state = viewModel.habitUiState.collectAsStateWithLifecycle()
     SingleHabitContent(
-        habitState = state.value,
+        habitUiState = state.value,
         onSaveButtonClick = { viewModel.updateHabit(it); navigate() })
 }
 
 @Composable
 fun SingleHabitContent(
-    habitState: HabitState,
+    habitUiState: HabitUiState,
     onSaveButtonClick: (habit: Habit) -> Unit
 ) {
-    when (habitState) {
-        is HabitState.Success -> ReadyScreen(
+    when (habitUiState) {
+        is HabitUiState.Success -> ReadyScreen(
             onSaveButtonClick = onSaveButtonClick,
-            habit = habitState.habit
+            habit = habitUiState.habit
         )
-        is HabitState.Loading -> LoadingScreen()
-        is HabitState.Error -> ErrorScreen()
+        is HabitUiState.Loading -> LoadingScreen()
+        is HabitUiState.Error -> ErrorScreen()
     }
 }
 
 @Composable
 fun LoadingScreen() {
+    Text(text = "Loading")
 }
 
 @Composable
 fun ErrorScreen() {
+    Text(text = "Error")
 }
 
 @Composable
